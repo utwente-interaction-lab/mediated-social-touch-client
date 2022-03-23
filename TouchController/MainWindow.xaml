@@ -1,0 +1,25 @@
+﻿<Window x:Class="TouchController.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TouchController"
+        Loaded="Window_Loaded"
+        Title="MainWindow"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ShowInTaskbar="False" 
+        ResizeMode="NoResize"
+        UseLayoutRounding="True"
+        Opacity="1" 
+        Cursor="ScrollAll" 
+        Topmost="True"
+        WindowState="Maximized">
+    <Window.Background>
+        <SolidColorBrush Color="#01ffffff" Opacity="0" />
+    </Window.Background>
+    <Grid>
+        <Rectangle x:Name="VisualBox" HorizontalAlignment="Left" Height="148" Margin="24,10,0,0" Fill="#33808080" Stroke="Black" VerticalAlignment="Top" Width="252"/>
+
+    </Grid>
+</Window>
