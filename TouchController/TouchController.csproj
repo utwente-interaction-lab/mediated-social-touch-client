@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="RtMidi.Core" Version="1.0.51" />
     <PackageReference Include="SocketIOClient" Version="3.0.6" />
   </ItemGroup>
 
