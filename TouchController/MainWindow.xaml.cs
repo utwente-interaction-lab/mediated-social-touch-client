@@ -49,6 +49,9 @@ namespace TouchController
         public float Height { get; set; }
         [JsonPropertyName("touchpoints")]
         public TouchPointJson Points { get; set; }
+
+        [JsonPropertyName("intensity")]
+        public byte Intensity { get; set; }
     }
 
     public class TouchPointJson
@@ -174,16 +177,16 @@ namespace TouchController
                 Trace.WriteLine(activeIndex);
                 if (activeIndex >= 0)
                     newMidi[activeIndex] = true;
-                UpdateMidi(newMidi);
+                UpdateMidi(newMidi, 100);
             }
             else
             {
-                UpdateMidi(new bool[MidiSize]);
+                UpdateMidi(new bool[MidiSize], 100);
             }
 
         }
 
-        private void UpdateMidi(bool[] vs)
+        private void UpdateMidi(bool[] vs, byte intensity)
         {
             var line = "";
             for (int i = 0; i < vs.Length; i++)
@@ -191,7 +194,7 @@ namespace TouchController
                 line += vs[i] + ",";
             }
 
- // Trace.WriteLine(line);
+            // Trace.WriteLine(line);
 
             for (int i = 0; i < vs.Length; i++)
             {
@@ -206,7 +209,7 @@ namespace TouchController
             {
                 if (vs[i] && !Midi[i])
                 {
-                    var message = new NoteOnMessage(RtMidi.Core.Enums.Channel.Channel1, (RtMidi.Core.Enums.Key)(Mapping[i]), 10);
+                    var message = new NoteOnMessage(RtMidi.Core.Enums.Channel.Channel1, (RtMidi.Core.Enums.Key)(Mapping[i]), intensity);
                     outputDevice.Send(message);
                 }
             }
@@ -216,7 +219,7 @@ namespace TouchController
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            client = new SocketIO("http://168.119.29.140:3000/");
+            client = new SocketIO("http://62.68.75.165:3000/");
             Trace.WriteLine("WindowLoaded");
 
 
@@ -256,6 +259,25 @@ namespace TouchController
                             };
                             VisualGrid.Children.Add(circle);
                             VisibleTouch.Add(p.Id.ToString(), circle);
+
+
+                            // NEW
+                            // todo, move to timer thingy 
+                            // todo: check velocity range
+
+                            var newMidi = new bool[MidiSize];
+
+                            var activeFloat = (p.X / jsonObject.Width) * MidiSize;
+                            var activeIndex = (int)Math.Round(activeFloat) - 1;
+
+                            //Trace.WriteLine("ACTIVEFLOAT");
+                            //Trace.WriteLine(activeFloat);
+                            //Trace.WriteLine("ACTIVEINDEX");
+                            //Trace.WriteLine(activeIndex);
+
+                            if (activeIndex >= 0)
+                                newMidi[activeIndex] = true;
+                            UpdateMidi(newMidi, jsonObject.Intensity);
                         }
                 });
 
