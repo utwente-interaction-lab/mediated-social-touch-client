@@ -48,7 +48,7 @@ namespace TouchController
         [JsonPropertyName("height")]
         public float Height { get; set; }
         [JsonPropertyName("touchpoints")]
-        public TouchPointJson Points { get; set; }
+        public List<TouchPointJson> Points { get; set; }
 
         [JsonPropertyName("intensity")]
         public byte Intensity { get; set; }
@@ -231,6 +231,7 @@ namespace TouchController
                 // The socket.io server code looks like this:
                 // socket.emit('hi', 'hi client');
                 var jsonString = response.ToString();
+                //Trace.WriteLine(jsonString);
                 TouchJson? jsonObject = JsonSerializer.Deserialize<TouchJson[]>(jsonString)[0];
 
                 Application.Current.Dispatcher.Invoke((Action)delegate
@@ -243,7 +244,7 @@ namespace TouchController
                     VisibleTouch.Clear();
 
                     if (jsonObject != null)
-                        foreach (var p in new List<TouchPointJson>() { jsonObject.Points })
+                        foreach (var p in jsonObject.Points)
                         {
 
                             var m = new Thickness(VisualBox.Margin.Left + (p.X / jsonObject.Width) * VisualBox.Width ,
@@ -272,10 +273,10 @@ namespace TouchController
 
                             //Trace.WriteLine("ACTIVEFLOAT");
                             //Trace.WriteLine(activeFloat);
-                            //Trace.WriteLine("ACTIVEINDEX");
-                            //Trace.WriteLine(activeIndex);
+                            Trace.WriteLine("ACTIVEINDEX");
+                            Trace.WriteLine(activeIndex);
 
-                            if (activeIndex >= 0)
+                            if (activeIndex >= 0 && activeIndex <= MidiSize)
                                 newMidi[activeIndex] = true;
                             UpdateMidi(newMidi, jsonObject.Intensity);
                         }
