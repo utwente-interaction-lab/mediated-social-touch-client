@@ -77,6 +77,10 @@ namespace TouchController
         public int MidiSize = 7;
         public int[] Mapping = new int[] { 48, 50, 49, 51, 52,  54, 53, };
 
+        public bool[] RemoteMidi;
+        public byte RemoteIntensity;
+        public bool ReceivedRemote = false;
+
         [DllImport("user32.dll")]
         static extern int GetWindowLong(IntPtr hwnd, int index);
 
@@ -179,6 +183,10 @@ namespace TouchController
                     newMidi[activeIndex] = true;
                 UpdateMidi(newMidi, 100);
             }
+            else if (ReceivedRemote && !r.Contains(p1))
+            {
+                UpdateMidi(RemoteMidi, RemoteIntensity);
+            }
             else
             {
                 UpdateMidi(new bool[MidiSize], 100);
@@ -244,6 +252,8 @@ namespace TouchController
                     VisibleTouch.Clear();
 
                     if (jsonObject != null)
+                    {
+                        var newMidi = new bool[MidiSize];
                         foreach (var p in jsonObject.Points)
                         {
 
@@ -262,24 +272,25 @@ namespace TouchController
                             VisibleTouch.Add(p.Id.ToString(), circle);
 
 
-                            // NEW
-                            // todo, move to timer thingy 
-                            // todo: check velocity range
+                            // NEW, remote web data
 
-                            var newMidi = new bool[MidiSize];
 
                             var activeFloat = (p.X / jsonObject.Width) * MidiSize;
                             var activeIndex = (int)Math.Round(activeFloat) - 1;
 
-                            //Trace.WriteLine("ACTIVEFLOAT");
-                            //Trace.WriteLine(activeFloat);
-                            Trace.WriteLine("ACTIVEINDEX");
-                            Trace.WriteLine(activeIndex);
+                            // todo: maybe add gradient? 
 
-                            if (activeIndex >= 0 && activeIndex <= MidiSize)
+                            if (activeIndex >= 0 && activeIndex < MidiSize)
                                 newMidi[activeIndex] = true;
-                            UpdateMidi(newMidi, jsonObject.Intensity);
+
                         }
+
+                     RemoteMidi = newMidi;
+                     RemoteIntensity = jsonObject.Intensity;
+                     ReceivedRemote = true;
+
+                     //UpdateMidi(newMidi, jsonObject.Intensity); // moved to clock function
+                    }
                 });
 
             });
