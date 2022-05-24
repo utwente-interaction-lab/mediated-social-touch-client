@@ -14,13 +14,12 @@ namespace TouchController.Devices
         private readonly int[] MidiMapping;
         private int MidiSize => MidiMapping.Length;
         private bool[] MidiStatus;
-        private IMidiOutputDevice? outputDevice;
+        private IMidiOutputDevice outputDevice;
 
         public MidiTouchDevice(int[] midiMapping)
         {
             MidiMapping = midiMapping;
             MidiStatus = new bool[MidiMapping.Length];
-            TryToConnect();
         }
 
         public void TryToConnect()
@@ -33,7 +32,7 @@ namespace TouchController.Devices
 
         public bool IsConnected() => outputDevice != null && outputDevice.IsOpen;
 
-        public void UpdateTouchPoints(TouchPoints? touchPoints)
+        public void UpdateTouchPoints(TouchPoints touchPoints)
         {
             var newMidi = new bool[MidiSize];
             byte intensity = 100;

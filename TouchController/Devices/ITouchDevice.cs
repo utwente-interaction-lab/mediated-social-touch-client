@@ -10,6 +10,6 @@ namespace TouchController.Devices
     {
         bool IsConnected();
         void TryToConnect();
-        void UpdateTouchPoints(TouchPoints? touchPoints);
+        void UpdateTouchPoints(TouchPoints touchPoints);
     }
 }

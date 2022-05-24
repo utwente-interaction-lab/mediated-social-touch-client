@@ -25,7 +25,7 @@ namespace TouchController
 
         public Dictionary<string, Ellipse> VisibleTouch = new Dictionary<string, Ellipse>();
 
-        public ITouchDevice? activeTouchDevice;
+        public ITouchDevice activeTouchDevice;
 
         public static Point GetMousePosition()
         {
@@ -42,7 +42,7 @@ namespace TouchController
         };
 
         private bool _isClickThrough = true;
-        private SocketIO? client;
+        private SocketIO client;
 
         public TouchPoints RemoteTouchPoints { get; private set; }
 
@@ -53,10 +53,13 @@ namespace TouchController
             //  DispatcherTimer setup
             var dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             dispatcherTimer.Start();
 
-            activeTouchDevice = new MidiTouchDevice(new int[] { 48, 50, 49, 51, 52, 54, 53 });
+            //activeTouchDevice = new MidiTouchDevice(new int[] { 48, 50, 49, 51, 52, 54, 53 });
+            activeTouchDevice = new bHapticsTouchDevice();
+
+            activeTouchDevice.TryToConnect();
 
         }
         public Size GetElementPixelSize(UIElement element)
@@ -92,7 +95,7 @@ namespace TouchController
             activeTouchDevice.UpdateTouchPoints(touchPoints);
         }
 
-        private TouchPoints? GetTouchPointsFromCursor()
+        private TouchPoints GetTouchPointsFromCursor()
         {
             Point p1 = GetMousePosition();
             Rect r = new Rect();
@@ -134,13 +137,13 @@ namespace TouchController
             {
                 Trace.WriteLine(response);
                 var jsonString = response.ToString();
-                TouchPoints? touchPoints = JsonSerializer.Deserialize<TouchPoints[]>(jsonString)[0];
+                TouchPoints touchPoints = JsonSerializer.Deserialize<TouchPoints[]>(jsonString)[0];
 
                 DrawTouchPoints(touchPoints);
                 RemoteTouchPoints = touchPoints;
             });
 
-            client.OnConnected += async (sender, e) =>
+            client.OnConnected += async (s, _) =>
             {
                 Trace.WriteLine("Connected");
                 // Set this client as output device

@@ -2,12 +2,13 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+	  <TargetFramework>net48</TargetFramework>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Bhaptics.Tac" Version="1.4.16" />
     <PackageReference Include="RtMidi.Core" Version="1.0.51" />
     <PackageReference Include="SocketIOClient" Version="3.0.6" />
   </ItemGroup>
