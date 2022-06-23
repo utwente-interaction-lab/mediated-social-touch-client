@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
@@ -56,11 +57,12 @@ namespace TouchController
             dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             dispatcherTimer.Start();
 
-            //activeTouchDevice = new MidiTouchDevice(new int[] { 48, 50, 49, 51, 52, 54, 53 });
-            activeTouchDevice = new bHapticsTouchDevice();
+            activeTouchDevice = new MidiTouchDevice(new int[] { 48, 50, 49, 51, 52, 54, 53 });
+            //activeTouchDevice = new bHapticsTouchDevice();
 
             activeTouchDevice.TryToConnect();
 
+            this.StatusTextBox.Text = "Not connected";
         }
         public Size GetElementPixelSize(UIElement element)
         {
@@ -80,6 +82,12 @@ namespace TouchController
 
         private async void dispatcherTimer_Tick(object sender, EventArgs e)
         {
+            if (activeTouchDevice?.IsConnected() == false)
+            {
+                Trace.WriteLine("Try reconnect");
+                activeTouchDevice?.TryToConnect();
+            };
+
             if (activeTouchDevice?.IsConnected() != true) return;
 
             var touchPoints = GetTouchPointsFromCursor();
@@ -129,7 +137,7 @@ namespace TouchController
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            client = new SocketIO("http://62.68.75.165:3000/");
+            client = new SocketIO("https://mediated-touch-web-app-qycmvurqta-ez.a.run.app/");
             Trace.WriteLine("WindowLoaded");
 
 
@@ -146,6 +154,11 @@ namespace TouchController
             client.OnConnected += async (s, _) =>
             {
                 Trace.WriteLine("Connected");
+
+                Application.Current.Dispatcher.Invoke(delegate
+                {
+                    this.StatusTextBox.Text = "PIN: " + GetPinCode();
+                });
                 // Set this client as output device
                 await client.EmitAsync("device", "output");
             };
@@ -215,6 +228,25 @@ namespace TouchController
             base.OnSourceInitialized(e);
             var hwnd = new WindowInteropHelper(this).Handle;
             SetWindowExTransparent(hwnd);
+        }
+
+        public string GetPinCode()
+        {
+            var pincodeFile = System.IO.Path.Combine(Environment.GetFolderPath(
+            Environment.SpecialFolder.ApplicationData), "touch_pincode.text");
+            if (!File.Exists(pincodeFile))
+            {
+                var newCode = GenerateRandomPinCode();
+                File.WriteAllText(pincodeFile, newCode);
+            }
+
+            return File.ReadAllText(pincodeFile);
+        }
+
+        static string GenerateRandomPinCode()
+        {
+            Random generator = new Random();
+            return generator.Next(0, 1000000).ToString("D6");
         }
     }
 }

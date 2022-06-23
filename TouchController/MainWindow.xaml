@@ -19,7 +19,7 @@
         <SolidColorBrush Color="#01ffffff" Opacity="0" />
     </Window.Background>
     <Grid x:Name="VisualGrid">
-        <Rectangle x:Name="VisualBox" HorizontalAlignment="Left" Height="148" Margin="24,10,0,0" Fill="#33808080" Stroke="Black" VerticalAlignment="Top" Width="252"/>
-
+        <Rectangle x:Name="VisualBox" HorizontalAlignment="Left" Height="148" Margin="24,10,0,0" Fill="#80000000" Stroke="Black" VerticalAlignment="Top" Width="252"/>
+        <TextBlock x:Name="StatusTextBox" HorizontalAlignment="Left" Margin="34,20,0,0" Foreground="White">Connection code: 2245</TextBlock>
     </Grid>
 </Window>

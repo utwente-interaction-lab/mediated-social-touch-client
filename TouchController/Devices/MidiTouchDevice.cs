@@ -3,6 +3,7 @@ using RtMidi.Core.Devices;
 using RtMidi.Core.Messages;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,10 +25,15 @@ namespace TouchController.Devices
 
         public void TryToConnect()
         {
-            var outputDeviceInfo = MidiDeviceManager.Default.OutputDevices.Last();
-            Console.WriteLine($"Opening {outputDeviceInfo.Name}");
-            outputDevice = outputDeviceInfo.CreateDevice();
-            outputDevice.Open();
+            var outputDeviceInfo = MidiDeviceManager.Default.OutputDevices.FirstOrDefault(x => x.Name.Contains("Arduino"));
+
+            if (outputDeviceInfo != null)
+            {
+
+                Trace.WriteLine($"Opening '{outputDeviceInfo.Name}'");
+                outputDevice = outputDeviceInfo.CreateDevice();
+                outputDevice.Open();
+            }
         }
 
         public bool IsConnected() => outputDevice != null && outputDevice.IsOpen;
@@ -42,7 +48,7 @@ namespace TouchController.Devices
                 {
                     // NEW, remote web data
                     var activeFloat = p.X / touchPoints.Width * MidiSize;
-                    var activeIndex = (int)Math.Round(activeFloat) - 1;
+                    var activeIndex = (int)Math.Floor(activeFloat);
 
                     // todo: maybe add gradient? 
                     if (activeIndex >= 0 && activeIndex < MidiSize)
@@ -50,7 +56,7 @@ namespace TouchController.Devices
                 }
                 intensity = touchPoints.Intensity;
             }
-
+            Trace.WriteLine(string.Join(", ", newMidi.Select(b => b.ToString()).ToArray()));
             UpdateMidiKeys(newMidi, intensity);
         }
 
@@ -68,7 +74,12 @@ namespace TouchController.Devices
                 if (!targetMidi[i] && MidiStatus[i])
                 {
                     var message = new NoteOffMessage(RtMidi.Core.Enums.Channel.Channel1, (RtMidi.Core.Enums.Key)MidiMapping[i], 0);
-                    outputDevice?.Send(message);
+                    var sent = outputDevice?.Send(message);
+
+                    if(sent == false)
+                    {
+                        outputDevice.Close();
+                    }
                 }
             }
 
@@ -78,9 +89,15 @@ namespace TouchController.Devices
                 if (targetMidi[i] && !MidiStatus[i])
                 {
                     var message = new NoteOnMessage(RtMidi.Core.Enums.Channel.Channel1, (RtMidi.Core.Enums.Key)MidiMapping[i], intensity);
-                    outputDevice?.Send(message);
+                    var sent = outputDevice?.Send(message);
+
+                    if (sent == false)
+                    {
+                        outputDevice.Close();
+                    }
                 }
             }
+
 
             MidiStatus = targetMidi;
         }
