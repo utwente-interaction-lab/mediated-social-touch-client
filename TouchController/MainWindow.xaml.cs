@@ -137,7 +137,7 @@ namespace TouchController
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            client = new SocketIO("https://mediated-touch-web-app-qycmvurqta-ez.a.run.app/");
+            client = new SocketIO("http://dog.ewi.utwente.nl:3000");
             Trace.WriteLine("WindowLoaded");
 
 
