@@ -1,4 +1,4 @@
-# Social Mediated Touch Client
+# Mediated Social Touch Client
 
 This C# application controls a haptic sleeve based on input commands sent by the [web application](https://github.com/utwente-interaction-lab/mediated-social-touch-web-application). It listens for (multi) touch commands from the server, which are translated to vibration patterns for a haptic sleeve device. There is support for the [bHaptics](https://github.com/utwente-interaction-lab/interaction-lab/wiki/Getting-started-with-the-bHaptics-Tactosy-for-Arms) sleeve, as well as a custom-built MIDI vibration sleeve available at HMI.
 
